@@ -139,7 +139,7 @@ void moistureMeasure() {
 
 // #include <SHT1x.h>
 #include <SHT1x-ESP.h>
-#include "dtostrf.h"
+// #include "dtostrf.h"
 
 // Specify data and clock connections and instantiate SHT1x object
 // https://www.seeedstudio.com/Soil-Moisture-Temperature-Sensor-p-1356.html
