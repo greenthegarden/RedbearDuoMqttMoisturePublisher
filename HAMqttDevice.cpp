@@ -40,7 +40,7 @@ HAMqttDevice::HAMqttDevice(
   case DeviceType::FAN:
   case DeviceType::LIGHT:
   case DeviceType::LOCK:
-  case DeviceType::SENSOR:
+  // case DeviceType::SENSOR:
   case DeviceType::SWITCH:
     enableStateTopic();
   default:
