@@ -57,10 +57,10 @@ const unsigned long SLEEP_DURATION = 15UL * 60UL * 1000UL; // 15 minutes
 #include "MQTT.h"
 
 char BROKER[] = "192.168.1.186";
-char CLIENTID[] = "duo_moisture";
-char TOPIC_AVAILABILITY[] = "duo/moisture/availability";
-char TOPIC_MOISTURE[] = "duo/moisture/";
-char TOPIC_SHT10[] = "duo/moisture/sht10";
+char CLIENTID[] = "duo_test";
+char TOPIC_AVAILABILITY[] = "duo_test/moisture/availability";
+char TOPIC_MOISTURE[] = "duo_test/moisture/";
+char TOPIC_SHT10[] = "duo_test/moisture/sht10";
 
 char topic[32];
 char payload[128];
@@ -73,6 +73,13 @@ void callback(char* topic, byte* payload, unsigned int length)
 
 MQTT client(BROKER, 1883, callback);
 
+/*
+ *************** Configure Home Assistant Integration ***************
+ */
+
+// #include <HAMqttDevice.h>
+#include "HAMqttDevice.h"
+HAMqttDevice soil_sht10_sensor("sht10", HAMqttDevice::SENSOR);
 
 /*
  *************** Configure Moisture Sensors ***************
@@ -161,6 +168,15 @@ void sht10Config()
   // set power pin as output
   pinMode(SHT10_POWER_PIN, OUTPUT);
   digitalWrite(SHT10_POWER_PIN, LOW);
+
+  soil_sht10_sensor
+      .addConfigVar("device_class", "temperature")
+      .addConfigVar("state_class", "measurement")
+      .addConfigVar("unit_of_measurement: ", "°C")
+      .addConfigVar("value_template", "{{ value_json.temperature | int(0) }}");
+
+  Serial.println("Config topic : " + soil_sht10_sensor.getConfigTopic());
+  Serial.println("Config payload : " + soil_sht10_sensor.getConfigPayload());
 }
 
 void sht10Measurement()
@@ -221,6 +237,8 @@ void setup() {
 
   // Connect to the MQTT broker as CLIENTID
   client.connect(CLIENTID);
+
+  client.publish(soil_sht10_sensor.getConfigTopic(), soil_sht10_sensor.getConfigPayload());
 }
 
 // put your main code here, to run repeatedly:
