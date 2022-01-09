@@ -33,6 +33,7 @@ HAMqttDevice::HAMqttDevice(
   }
 
   // When the state topic is mandatory, enable it.
+  // case DeviceType::SENSOR:
   switch (type)
   {
   case DeviceType::ALARM_CONTROL_PANEL:
@@ -40,7 +41,6 @@ HAMqttDevice::HAMqttDevice(
   case DeviceType::FAN:
   case DeviceType::LIGHT:
   case DeviceType::LOCK:
-  // case DeviceType::SENSOR:
   case DeviceType::SWITCH:
     enableStateTopic();
   default:

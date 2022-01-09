@@ -84,19 +84,21 @@ HAMqttDevice soil_moisture_2("Soil Moisture 2", HAMqttDevice::SENSOR);
  *************** Configure System Memory ***************
  */
 
-void memoryConfig()
+void deviceConfig()
 {
   soil_device_memory.enableStateTopic();
+  soil_device_memory.enableAttributesTopic();
   soil_device_memory
       .addConfigVar("state_class", "measurement")
       .addConfigVar("unit_of_measurement: ", "bytes");
+  soil_device_memory
+      .addAttribute("sleep_time", String(SLEEP_DURATION/1000));
 }
 
-void memoryPublish()
+void devicePublish()
 {
   int memory = System.freeMemory();
-  payload[0] = '\0';
-  client.publish(soil_device_memory.getStateTopic(), itoa(memory, payload, 10));
+  client.publish(soil_device_memory.getStateTopic(), String(memory));
 }
 
 /*
@@ -122,11 +124,19 @@ void moistureConfig() {
   soil_moisture_1
       .addConfigVar("state_class", "measurement")
       .addConfigVar("value_template", "{{ value_json.measurement | int(0) }}");
+  soil_moisture_1.enableAttributesTopic();
+  soil_moisture_1
+      .addAttribute("pin_data", String(MOISTURE_SENSORS[0][0]))
+      .addAttribute("power_pin", String(MOISTURE_SENSORS[0][1]));
 
   soil_moisture_2.enableStateTopic();
   soil_moisture_2
       .addConfigVar("state_class", "measurement")
       .addConfigVar("value_template", "{{ value_json.measurement | int(0) }}");
+  soil_moisture_1.enableAttributesTopic();
+  soil_moisture_2
+      .addAttribute("pin_data", String(MOISTURE_SENSORS[1][0]))
+      .addAttribute("power_pin", String(MOISTURE_SENSORS[1][1]));
 }
 
 void moistureMeasure() {
@@ -144,21 +154,13 @@ void moistureMeasure() {
     // switch off sensor
     digitalWrite(power_pin, LOW);
     digitalWrite(DUO_BLUE_LED, LOW);
-    // prepare MQTT payload
-    payload[0] = '\0';
-    // create payload
-    JSONBufferWriter writer(payload, sizeof(payload));
-    writer.beginObject();
-    writer.name("measurement").value(measurement);
-    writer.name("pin_data").value(data_pin);
-    writer.name("pin_power").value(power_pin);
-    writer.endObject();
-    writer.buffer()[min(writer.bufferSize(), writer.dataSize())] = 0;
     // publish reading
+    String topic;
     if(i==0)
-      client.publish(soil_moisture_1.getStateTopic(), payload);
-    else if (i==1)
-      client.publish(soil_moisture_2.getStateTopic(), payload);
+      topic = soil_moisture_1.getStateTopic();
+    else if (i == 1)
+      topic = soil_moisture_1.getStateTopic();
+    client.publish(topic, String(measurement));
 
     // time before next measurement
     delay(1000);
@@ -189,6 +191,8 @@ SHT1x sht1x(SHT10_DATA_PIN, SHT10_CLOCK_PIN, SHT1x::Voltage::DC_3_3v);
 float temp_c;
 float humidity;
 
+char SHT10_STATUS_TOPIC[] = "ha/sensor/soil_sht10";
+
 void sht10Config()
 {
   // set power pin as output
@@ -199,15 +203,14 @@ void sht10Config()
       .addConfigVar("device_class", "temperature")
       .addConfigVar("state_class", "measurement")
       .addConfigVar("unit_of_measurement: ", "°C")
-      .addConfigVar("stat_t", "ha/sensor/soil_sht10")
+      .addConfigVar("stat_t", SHT10_STATUS_TOPIC)
       .addConfigVar("value_template", "{{ value_json.temperature | int(0) }}");
-
 
   soil_sht10_humidity
       .addConfigVar("device_class", "humidity")
       .addConfigVar("state_class", "measurement")
       .addConfigVar("unit_of_measurement: ", "%")
-      .addConfigVar("stat_t", "ha/sensor/soil_sht10")
+      .addConfigVar("stat_t", SHT10_STATUS_TOPIC)
       .addConfigVar("value_template", "{{ value_json.humidity | int(0) }}");
 }
 
@@ -234,7 +237,7 @@ void sht10Measurement()
   writer.endObject();
   writer.buffer()[min(writer.bufferSize(), writer.dataSize())] = 0;
   // publish reading
-  client.publish("ha/sensor/soil_sht10", payload);
+  client.publish(SHT10_STATUS_TOPIC, payload);
 }
 
 
@@ -255,7 +258,7 @@ void setup() {
   pinMode(DUO_BLUE_LED, OUTPUT);
 
   // device memory configuration
-  memoryConfig();
+  deviceConfig();
   // sht10 sensor configuration
   sht10Config();
   // moisture sensors configuration
@@ -269,7 +272,9 @@ void setup() {
   // Connect to the MQTT broker as CLIENTID
   client.connect(CLIENTID);
 
+  // Publish config and attributes payloads
   client.publish(soil_device_memory.getConfigTopic(), soil_device_memory.getConfigPayload());
+  client.publish(soil_device_memory.getAttributesTopic(), soil_device_memory.getAttributesPayload());
   client.publish(soil_sht10_temperature.getConfigTopic(), soil_sht10_temperature.getConfigPayload());
   client.publish(soil_sht10_humidity.getConfigTopic(), soil_sht10_humidity.getConfigPayload());
   client.publish(soil_moisture_1.getConfigTopic(), soil_moisture_1.getConfigPayload());
@@ -283,7 +288,7 @@ void loop() {
   if (client.isConnected())
   {
     // Publish measurements
-    memoryPublish();
+    devicePublish();
     sht10Measurement();
     moistureMeasure();
   }
