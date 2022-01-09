@@ -159,7 +159,7 @@ void moistureMeasure() {
     if(i==0)
       topic = soil_moisture_1.getStateTopic();
     else if (i == 1)
-      topic = soil_moisture_1.getStateTopic();
+      topic = soil_moisture_2.getStateTopic();
     client.publish(topic, String(measurement));
 
     // time before next measurement
@@ -272,13 +272,17 @@ void setup() {
   // Connect to the MQTT broker as CLIENTID
   client.connect(CLIENTID);
 
-  // Publish config and attributes payloads
+  // Publish config payloads
   client.publish(soil_device_memory.getConfigTopic(), soil_device_memory.getConfigPayload());
-  client.publish(soil_device_memory.getAttributesTopic(), soil_device_memory.getAttributesPayload());
   client.publish(soil_sht10_temperature.getConfigTopic(), soil_sht10_temperature.getConfigPayload());
   client.publish(soil_sht10_humidity.getConfigTopic(), soil_sht10_humidity.getConfigPayload());
   client.publish(soil_moisture_1.getConfigTopic(), soil_moisture_1.getConfigPayload());
   client.publish(soil_moisture_2.getConfigTopic(), soil_moisture_2.getConfigPayload());
+
+  // Publish attributes payloads
+  client.publish(soil_device_memory.getAttributesTopic(), soil_device_memory.getAttributesPayload());
+  client.publish(soil_moisture_1.getAttributesTopic(), soil_moisture_1.getAttributesPayload());
+  client.publish(soil_moisture_2.getAttributesTopic(), soil_moisture_2.getAttributesPayload());
 }
 
 // put your main code here, to run repeatedly:
