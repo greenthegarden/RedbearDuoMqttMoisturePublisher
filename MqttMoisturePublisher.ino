@@ -84,6 +84,25 @@ HAMqttDevice soil_moisture_2("Soil Moisture 2", HAMqttDevice::SENSOR);
  *************** Configure System Memory ***************
  */
 
+String macAddressToString()
+{
+  // the MAC address of your Wifi
+  byte mac_buffer[6];
+
+  // print your MAC address:
+  WiFi.macAddress(mac_buffer);
+  String mac_address = "";
+  for (byte octet = 0; octet < 6; octet++)
+  {
+    mac_address += String(mac_buffer[octet], HEX);
+    if (octet < 5)
+    {
+      mac_address += ':';
+    }
+  }
+  return mac_address;
+}
+
 void deviceConfig()
 {
   soil_device_memory.enableStateTopic();
@@ -92,7 +111,10 @@ void deviceConfig()
       .addConfigVar("state_class", "measurement")
       .addConfigVar("unit_of_measurement: ", "bytes");
   soil_device_memory
-      .addAttribute("sleep_time", String(SLEEP_DURATION/1000));
+      .addAttribute("sleep_time", String(SLEEP_DURATION/1000))
+      .addAttribute("ssid", String(WiFi.SSID()))
+      .addAttribute("ip_address", String(WiFi.localIP()))
+      .addAttribute("mac_address", macAddressToString());
 }
 
 void devicePublish()
