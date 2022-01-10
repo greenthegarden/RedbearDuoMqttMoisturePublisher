@@ -114,7 +114,8 @@ void deviceConfig()
       .addAttribute("sleep_time", String(SLEEP_DURATION/1000))
       .addAttribute("ssid", String(WiFi.SSID()))
       .addAttribute("ip_address", String(WiFi.localIP()))
-      .addAttribute("mac_address", macAddressToString());
+      .addAttribute("mac_address", macAddressToString())
+      .addAttribute("client_id", CLIENTID);
 }
 
 void devicePublish()
@@ -279,8 +280,6 @@ void setup() {
 
   pinMode(DUO_BLUE_LED, OUTPUT);
 
-  // device memory configuration
-  deviceConfig();
   // sht10 sensor configuration
   sht10Config();
   // moisture sensors configuration
@@ -291,8 +290,15 @@ void setup() {
   WiFi.setCredentials(SSID, PASSWORD);
   WiFi.connect();
 
+  // wait for wifi to be established
+  delay(3000);
+
   // Connect to the MQTT broker as CLIENTID
   client.connect(CLIENTID);
+
+  // device memory configuration
+  // needs to occur after connection to network
+  deviceConfig();
 
   // Publish config payloads
   client.publish(soil_device_memory.getConfigTopic(), soil_device_memory.getConfigPayload());
