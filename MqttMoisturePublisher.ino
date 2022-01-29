@@ -59,7 +59,7 @@ const unsigned long SLEEP_DURATION = 15UL * 60UL * 1000UL; // 15 minutes
 
 // set to true to run test => will not sleep
 #ifndef TEST_MODE
-#define TEST_MODE false
+#define TEST_MODE true
 #endif
 
 const unsigned long TEST_DURATION = 1UL * 60UL * 1000UL;  // 60 seconds
@@ -93,17 +93,22 @@ MQTT client(BROKER, 1883, callback);
 
 // #include <HAMqttDevice.h>
 #include "HAMqttDevice.h"
-HAMqttDevice soil_device_memory("Soil Device Memory", HAMqttDevice::SENSOR);
-HAMqttDevice soil_sht10_temperature("Soil SHT10 Temperature", HAMqttDevice::SENSOR);
-HAMqttDevice soil_sht10_humidity("Soil SHT10 Humidity", HAMqttDevice::SENSOR);
-HAMqttDevice soil_moisture_1("Soil Moisture 1", HAMqttDevice::SENSOR);
-HAMqttDevice soil_moisture_2("Soil Moisture 2", HAMqttDevice::SENSOR);
+
+char HA_MQTT_PREFIX[] = "homeassistant";
+
+HAMqttDevice soil_device_memory("Soil Device Memory", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_sht10_temperature("Soil SHT10 Temperature", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_sht10_humidity("Soil SHT10 Humidity", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_moisture_1("Soil Moisture 1", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_moisture_2("Soil Moisture 2", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
 
 /*
  *************** Configure Device Message ***************
  */
 
-String macAddressToString()
+// if formatted will return in form ab:cd:ef:01
+// else will return in form abcded01
+String macAddressToString(bool formatted=true)
 {
   // the MAC address of your Wifi
   byte mac_buffer[6];
@@ -114,7 +119,7 @@ String macAddressToString()
   for (byte octet = 0; octet < 6; octet++)
   {
     mac_address += String(mac_buffer[octet], HEX);
-    if (octet < 5)
+    if (octet < 5 && formatted)
     {
       mac_address += ':';
     }
@@ -214,9 +219,7 @@ void moistureMeasure() {
  *************** Configure temperature/humidity sensor ***************
  */
 
-// #include <SHT1x.h>
 #include <SHT1x-ESP.h>
-// #include "dtostrf.h"
 
 // Specify data and clock connections and instantiate SHT1x object
 // https://www.seeedstudio.com/Soil-Moisture-Temperature-Sensor-p-1356.html
@@ -233,7 +236,7 @@ SHT1x sht1x(SHT10_DATA_PIN, SHT10_CLOCK_PIN, SHT1x::Voltage::DC_3_3v);
 float temp_c;
 float humidity;
 
-char SHT10_STATUS_TOPIC[] = "ha/sensor/soil_sht10";
+char SHT10_STATUS_TOPIC[] = "duo/sensor/soil_sht10";
 
 void sht10Config()
 {
@@ -306,7 +309,7 @@ void setup() {
   delay(3000);
 
   // Create unique client ID based on MAC address
-  String client_id = String(CLIENTID) + "_" + macAddressToString();
+  String client_id = String(CLIENTID) + "_" + macAddressToString(false);
   // convert back to char*
   unsigned int client_id_len = client_id.length() + 1;
   char client_id_buf[client_id_len];
@@ -319,17 +322,21 @@ void setup() {
   // needs to occur after connection to network
   deviceConfig();
 
-  // Publish config payloads
-  client.publish(soil_device_memory.getConfigTopic(), soil_device_memory.getConfigPayload());
-  client.publish(soil_sht10_temperature.getConfigTopic(), soil_sht10_temperature.getConfigPayload());
-  client.publish(soil_sht10_humidity.getConfigTopic(), soil_sht10_humidity.getConfigPayload());
-  client.publish(soil_moisture_1.getConfigTopic(), soil_moisture_1.getConfigPayload());
-  client.publish(soil_moisture_2.getConfigTopic(), soil_moisture_2.getConfigPayload());
+  // publish/subscribe
+  if (client.isConnected())
+  {
+    // Publish config payloads
+    client.publish(soil_device_memory.getConfigTopic(), soil_device_memory.getConfigPayload());
+    client.publish(soil_sht10_temperature.getConfigTopic(), soil_sht10_temperature.getConfigPayload());
+    client.publish(soil_sht10_humidity.getConfigTopic(), soil_sht10_humidity.getConfigPayload());
+    client.publish(soil_moisture_1.getConfigTopic(), soil_moisture_1.getConfigPayload());
+    client.publish(soil_moisture_2.getConfigTopic(), soil_moisture_2.getConfigPayload());
 
-  // Publish attributes payloads
-  client.publish(soil_device_memory.getAttributesTopic(), soil_device_memory.getAttributesPayload());
-  client.publish(soil_moisture_1.getAttributesTopic(), soil_moisture_1.getAttributesPayload());
-  client.publish(soil_moisture_2.getAttributesTopic(), soil_moisture_2.getAttributesPayload());
+    // Publish attributes payloads
+    client.publish(soil_device_memory.getAttributesTopic(), soil_device_memory.getAttributesPayload());
+    client.publish(soil_moisture_1.getAttributesTopic(), soil_moisture_1.getAttributesPayload());
+    client.publish(soil_moisture_2.getAttributesTopic(), soil_moisture_2.getAttributesPayload());
+  }
 }
 
 // put your main code here, to run repeatedly:
