@@ -100,7 +100,7 @@ HAMqttDevice soil_moisture_1("Soil Moisture 1", HAMqttDevice::SENSOR);
 HAMqttDevice soil_moisture_2("Soil Moisture 2", HAMqttDevice::SENSOR);
 
 /*
- *************** Configure System Memory ***************
+ *************** Configure Device Message ***************
  */
 
 String macAddressToString()
@@ -302,11 +302,18 @@ void setup() {
   WiFi.setCredentials(SSID, PASSWORD);
   WiFi.connect();
 
-  // wait for wifi to be established
+  // wait for wifi connection to be established
   delay(3000);
 
-  // Connect to the MQTT broker as CLIENTID
-  client.connect(CLIENTID);
+  // Create unique client ID based on MAC address
+  String client_id = String(CLIENTID) + "_" + macAddressToString();
+  // convert back to char*
+  unsigned int client_id_len = client_id.length() + 1;
+  char client_id_buf[client_id_len];
+  client_id.toCharArray(client_id_buf, client_id_len);
+
+  // connect to broker
+  client.connect(client_id_buf);
 
   // device memory configuration
   // needs to occur after connection to network
