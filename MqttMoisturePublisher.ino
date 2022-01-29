@@ -78,14 +78,17 @@ const int DUO_BLUE_LED = D7;
 #include "MQTT.h"
 
 // buffer for payload
-char payload[128];
+const unsigned int PAYLOAD_LENGTH = 1023;
+const unsigned int KEEP_ALIVE = 60;
+
+char payload[PAYLOAD_LENGTH];
 
 // This is called when a message is received. However, we do not use this feature in
 // this project so it will be left empty
 void callback(char* topic, byte* payload, unsigned int length) 
 {}
 
-MQTT client(BROKER, 1883, callback);
+MQTT client(BROKER_IP, BROKER_PORT, PAYLOAD_LENGTH, KEEP_ALIVE, callback);
 
 /*
  *************** Configure Home Assistant Integration ***************
@@ -316,7 +319,10 @@ void setup() {
   client_id.toCharArray(client_id_buf, client_id_len);
 
   // connect to broker
-  client.connect(client_id_buf);
+  // client.connect(client_id_buf);
+  String willTopic = String("duo") + String("/") + macAddressToString(false);
+  String willMessage = "online";
+  client.connect(client_id_buf, NULL, NULL, willTopic, MQTT::EMQTT_QOS::QOS0, 60, willMessage, true);
 
   // device memory configuration
   // needs to occur after connection to network
