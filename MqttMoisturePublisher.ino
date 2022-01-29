@@ -43,12 +43,33 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 // Using JSON is a pain with standard library
 // Information at https://docs.particle.io/reference/device-os/firmware/#json
 
+
+/*
+ *************** Configuration details ***************
+ */
+
+#include "secrets.h"
+
+// set USE_SLEEP to false to run a delay rather than sleep duo
+#ifndef USE_SLEEP
+#define USE_SLEEP true
+#endif
+
+const unsigned long SLEEP_DURATION = 15UL * 60UL * 1000UL; // 15 minutes
+
+// set to true to run test => will not sleep
+#ifndef TEST_MODE
+#define TEST_MODE false
+#endif
+
+const unsigned long TEST_DURATION = 1UL * 60UL * 1000UL;  // 60 seconds
+
 /*
  *************** Configure Duo ***************
  */
 
 const int DUO_BLUE_LED = D7;
-const unsigned long SLEEP_DURATION = 15UL * 60UL * 1000UL; // 15 minutes
+
 
 /*
  *************** Configure MQTT ***************
@@ -56,8 +77,6 @@ const unsigned long SLEEP_DURATION = 15UL * 60UL * 1000UL; // 15 minutes
 
 #include "MQTT.h"
 
-char BROKER[] = "192.168.1.186";
-char CLIENTID[] = "duo_test";
 // buffer for payload
 char payload[128];
 
@@ -265,13 +284,6 @@ void sht10Measurement()
 
 
 /*
- *************** Configure Network ***************
- */
-
-#include "secrets.h"
-
-
-/*
  *************** Arduino Methods ***************
  */
 
@@ -325,7 +337,14 @@ void loop() {
     moistureMeasure();
   }
 
+#if TEST_MODE
+  delay(TEST_DURATION);
+#else
+#if USE_SLEEP
   // Sleep system for SLEEP_DURATION seconds
-  // System.sleep(SLEEP_MODE_DEEP, SLEEP_DURATION);
-  delay(60000);
+  System.sleep(SLEEP_MODE_DEEP, SLEEP_DURATION);
+#else
+  delay(SLEEP_DURATION);
+#endif
+#endif
 }
