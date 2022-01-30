@@ -196,8 +196,9 @@ void moistureConfig() {
 
   soil_moisture_1.enableStateTopic();
   soil_moisture_1
-      .addConfigVar("state_class", "measurement")
-      .addConfigVar("value_template", "{{ value_json.measurement | int(0) }}");
+      .addConfigVar("stat_cla", "measurement")
+      .addConfigVar("val_tpl", "{{ value_json.measurement | int(0) }}")
+      .addConfigVar("dev", "{\"ids\": \"moisture_sensor_1\", \"name\": \"Capacitive Soil Moisture Sensor\", \"mdl\": \"V1.2\", \"sa\": \"garden\", \"mf\": \"DIYMORE.CC\"}");
   soil_moisture_1.enableAttributesTopic();
   soil_moisture_1
       .addAttribute("pin_data", String(MOISTURE_SENSORS[0][0]))
@@ -205,8 +206,9 @@ void moistureConfig() {
 
   soil_moisture_2.enableStateTopic();
   soil_moisture_2
-      .addConfigVar("state_class", "measurement")
-      .addConfigVar("value_template", "{{ value_json.measurement | int(0) }}");
+      .addConfigVar("stat_cla", "measurement")
+      .addConfigVar("val_tpl", "{{ value_json.measurement | int(0) }}")
+      .addConfigVar("dev", "{\"ids\": \"moisture_sensor_2\", \"name\": \"Capacitive Soil Moisture Sensor\", \"mdl\": \"V1.2\", \"sa\": \"garden\", \"mf\": \"DIYMORE.CC\"}");
   soil_moisture_1.enableAttributesTopic();
   soil_moisture_2
       .addAttribute("pin_data", String(MOISTURE_SENSORS[1][0]))
