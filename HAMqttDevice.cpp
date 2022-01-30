@@ -98,12 +98,12 @@ const String HAMqttDevice::getConfigPayload() const
 
     bool valueIsDictionnary = _configVars[i].value.startsWith("{");
 
-    if (!valueIsDictionnary || _configVars[i].key.equals("value_template"))
+    if (!valueIsDictionnary || _configVars[i].key.equals("value_template") || _configVars[i].key.equals("val_tpl"))
       configPayload.concat('"');
 
     configPayload.concat(_configVars[i].value);
 
-    if (!valueIsDictionnary || _configVars[i].key.equals("value_template"))
+    if (!valueIsDictionnary || _configVars[i].key.equals("value_template") || _configVars[i].key.equals("val_tpl"))
       configPayload.concat('"');
 
     configPayload.concat(',');
