@@ -22,4 +22,16 @@ Soil Moisture & Temperature Sensor
 
 Uses a SHT10 sensor, see https://www.adafruit.com/product/1298, 3mW measuring
 
-Redbear Duo current per pin 
+Redbear Duo details at https://github.com/redbear/Duo.
+
+LED Status Indicators
+
+| RGB LED State | Duo State |
+| ------------- | --------- |
+| flashing blue | listening mode |
+| flashing green | attempting connection to access point |
+| pulsing green | 
+| solid green | listening mode |
+| solid yellow | |
+
+Device ID 3a001d000d47353033323637

@@ -33,3 +33,6 @@
 
 # Others
 secrets.h
+
+libraries/MQTT
+libraries/HAMqttDevice

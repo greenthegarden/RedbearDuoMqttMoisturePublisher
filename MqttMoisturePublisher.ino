@@ -48,6 +48,14 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
  *************** Configuration details ***************
  */
 
+// for debugging.
+#define DEBUG_CODE_SERIAL_OUTPUT true
+#if defined(DEBUG_CODE_SERIAL_OUTPUT)
+#define code_debug_print(fmt, ...) Serial.printf("[DEBUG] CODE " fmt, ##__VA_ARGS__)
+#else /* !DEBUG_CODE_SERIAL_OUTPUT */
+#define code_debug_print(fmt, ...) ((void)0)
+#endif /* DEBUG_CODE_SERIAL_OUTPUT */
+
 #include "secrets.h"
 
 // set USE_SLEEP to false to run a delay rather than sleep duo
@@ -62,7 +70,11 @@ const unsigned long SLEEP_DURATION = 15UL * 60UL * 1000UL; // 15 minutes
 #define TEST_MODE true
 #endif
 
-const unsigned long TEST_DURATION = 1UL * 60UL * 1000UL;  // 60 seconds
+#if TEST_MODE
+#define DEBUG_MQTT_SERIAL_OUTPUT true
+#endif
+
+const unsigned long TEST_DURATION = 1UL * 60UL * 1000UL; // 60 seconds
 
 /*
  *************** Configure Duo ***************
@@ -88,6 +100,14 @@ char payload[PAYLOAD_LENGTH];
 void callback(char* topic, byte* payload, unsigned int length) 
 {}
 
+/**
+ * if want to use IP address,
+ * const uint8_t server[] = { XXX,XXX,XXX,XXX };
+ * MQTT client(server, 1883, callback);
+ * want to use domain name,
+ * exp) iot.eclipse.org is Eclipse Open MQTT Broker: https://iot.eclipse.org/getting-started
+ * MQTT client("mqtt.eclipse.org", 1883, callback);
+ **/
 MQTT client(BROKER_IP, BROKER_PORT, PAYLOAD_LENGTH, KEEP_ALIVE, callback);
 
 /*
@@ -296,6 +316,8 @@ void sht10Measurement()
 // put your setup code here, to run once:
 void setup() {
 
+  code_debug_print(" Setup ...\n");
+
   pinMode(DUO_BLUE_LED, OUTPUT);
 
   // sht10 sensor configuration
@@ -308,63 +330,80 @@ void setup() {
   WiFi.setCredentials(SSID, PASSWORD);
   WiFi.connect();
 
-  // wait for wifi connection to be established
-  delay(3000);
+  // wait for Wifi connection
+  // while (WiFi.connecting())
+  // {
+  // }
 
-  // Create unique client ID based on MAC address
+  // if (!WiFi.ready())
+  //   code_debug_print(" Did not connect to %s\n", SSID);
+
+  // // wait for wifi connection to be established
+  // delay(3000);
+
+  // connect to broker with unique client ID based on MAC address
   String client_id = String(CLIENTID) + "_" + macAddressToString(false);
-  // convert back to char*
-  unsigned int client_id_len = client_id.length() + 1;
-  char client_id_buf[client_id_len];
-  client_id.toCharArray(client_id_buf, client_id_len);
+  String willTopic = String("duo") + String("/") + macAddressToString(false) + String("/status");
+  String willMessage = "offline";
+  // while (!client.connect(client_id, NULL, NULL, willTopic, MQTT::EMQTT_QOS::QOS0, 60, willMessage, true)) {
+  //   code_debug_print("Connecting to broker ...");
+  //   delay(5000);
+  // }
 
-  // connect to broker
-  // client.connect(client_id_buf);
-  String willTopic = String("duo") + String("/") + macAddressToString(false);
-  String willMessage = "online";
-  client.connect(client_id_buf, NULL, NULL, willTopic, MQTT::EMQTT_QOS::QOS0, 60, willMessage, true);
-
-  // device memory configuration
-  // needs to occur after connection to network
-  deviceConfig();
-
-  // publish/subscribe
+  // client.connect(client_id);
+  // return connect(id, NULL, NULL, 0, QOS0, 0, 0, true);
+  // connect(id, user, pass, 0, QOS0, 0, 0, true);
+  // bool connect(const char *id, const char *user, const char *pass, const char* willTopic, EMQTT_QOS willQos, uint8_t willRetain, const char* willMessage, bool cleanSession, MQTT_VERSION version = MQTT_V311);
+  client.connect(client_id, NULL, NULL, 0, MQTT::EMQTT_QOS::QOS0, 0, 0, true);
+  
   if (client.isConnected())
   {
-    // Publish config payloads
-    client.publish(soil_device_memory.getConfigTopic(), soil_device_memory.getConfigPayload());
-    client.publish(soil_sht10_temperature.getConfigTopic(), soil_sht10_temperature.getConfigPayload());
-    client.publish(soil_sht10_humidity.getConfigTopic(), soil_sht10_humidity.getConfigPayload());
-    client.publish(soil_moisture_1.getConfigTopic(), soil_moisture_1.getConfigPayload());
-    client.publish(soil_moisture_2.getConfigTopic(), soil_moisture_2.getConfigPayload());
+    client.publish(willTopic, "online", true);
 
-    // Publish attributes payloads
-    client.publish(soil_device_memory.getAttributesTopic(), soil_device_memory.getAttributesPayload());
-    client.publish(soil_moisture_1.getAttributesTopic(), soil_moisture_1.getAttributesPayload());
-    client.publish(soil_moisture_2.getAttributesTopic(), soil_moisture_2.getAttributesPayload());
+    code_debug_print("Connected to broker");
   }
-}
+    // // device memory configuration
+    // // needs to occur after connection to network
+    // deviceConfig();
+
+    // // publish/subscribe
+    // // if (client.isConnected())
+    // // {
+    //   // Publish config payloads
+    //   client.publish(soil_device_memory.getConfigTopic(), soil_device_memory.getConfigPayload());
+    //   client.publish(soil_sht10_temperature.getConfigTopic(), soil_sht10_temperature.getConfigPayload());
+    //   client.publish(soil_sht10_humidity.getConfigTopic(), soil_sht10_humidity.getConfigPayload());
+    //   client.publish(soil_moisture_1.getConfigTopic(), soil_moisture_1.getConfigPayload());
+    //   client.publish(soil_moisture_2.getConfigTopic(), soil_moisture_2.getConfigPayload());
+
+    //   // Publish attributes payloads
+    //   client.publish(soil_device_memory.getAttributesTopic(), soil_device_memory.getAttributesPayload());
+    //   client.publish(soil_moisture_1.getAttributesTopic(), soil_moisture_1.getAttributesPayload());
+    //   client.publish(soil_moisture_2.getAttributesTopic(), soil_moisture_2.getAttributesPayload());
+    // // }
+  }
 
 // put your main code here, to run repeatedly:
 void loop() {
 
-  // publish/subscribe
   if (client.isConnected())
   {
     // Publish measurements
     devicePublish();
     sht10Measurement();
     moistureMeasure();
+  
+    client.loop();
   }
 
-#if TEST_MODE
-  delay(TEST_DURATION);
-#else
-#if USE_SLEEP
-  // Sleep system for SLEEP_DURATION seconds
-  System.sleep(SLEEP_MODE_DEEP, SLEEP_DURATION);
-#else
-  delay(SLEEP_DURATION);
-#endif
-#endif
+  // #if TEST_MODE
+  //   delay(TEST_DURATION);
+  // #else
+  // #if USE_SLEEP
+  //   // Sleep system for SLEEP_DURATION seconds
+  //   System.sleep(SLEEP_MODE_DEEP, SLEEP_DURATION);
+  // #else
+  //   delay(SLEEP_DURATION);
+  // #endif
+  // #endif
 }
