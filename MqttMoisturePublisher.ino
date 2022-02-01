@@ -209,7 +209,7 @@ void moistureConfig() {
       .addConfigVar("stat_cla", "measurement")
       .addConfigVar("val_tpl", "{{ value_json.measurement | int(0) }}")
       .addConfigVar("dev", "{\"ids\": \"moisture_sensor_2\", \"name\": \"Capacitive Soil Moisture Sensor\", \"mdl\": \"V1.2\", \"sa\": \"garden\", \"mf\": \"DIYMORE.CC\"}");
-  soil_moisture_1.enableAttributesTopic();
+  soil_moisture_2.enableAttributesTopic();
   soil_moisture_2
       .addAttribute("pin_data", String(MOISTURE_SENSORS[1][0]))
       .addAttribute("power_pin", String(MOISTURE_SENSORS[1][1]));
