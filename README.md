@@ -2,7 +2,7 @@
 
 Project to use a Redbear Duo microprossing board to gather and publish soil moisture, temperature and humidity via MQTT. The structure of the topics are compatible with Home Assistant MQTT Discovery.
 
-# Hardware
+## Hardware
 
 ### Redbear Duo
 
@@ -26,11 +26,11 @@ Solar power and battery management is provided by a [Seeedstudio LiPo Rider Pro]
 
 ### Soil Moisture Sensors
 
-[Capacitive Soil Moisture Sensor V1.2 Analog Corrosion Resistant DC 3.3-5.5V](https://www.diymore.cc/products/2pcs-capacitive-soil-moisture-sensor-v1-2-analog-corrosion-resistant-dc-3-3-5-5v?_pos=3&_sid=a9bfd7fa9&_ss=r) were utilised as they are more robust for longer periods in the ground and not too expensive. Longer leads where created to enable the sensors to be relocated without moving the case and solar panel. The current draw for these type of sensors is approximately 5mA (source: https://thecavepearlproject.org/2020/10/27/hacking-a-capacitive-soil-moisture-sensor-for-frequency-output/).
+[Capacitive Soil Moisture Sensors](https://www.diymore.cc/products/2pcs-capacitive-soil-moisture-sensor-v1-2-analog-corrosion-resistant-dc-3-3-5-5v?_pos=3&_sid=a9bfd7fa9&_ss=r) were utilised as they are more robust for longer periods in the ground and not too expensive. Longer leads where created to enable the sensors to be relocated without moving the case and solar panel. The current draw for these type of sensors is approximately 5mA (source: https://thecavepearlproject.org/2020/10/27/hacking-a-capacitive-soil-moisture-sensor-for-frequency-output/).
 
 ### Temperature and Humidity Sensor
 
-A [SHT10 Temperature and Humidity sensor](https://www.seeedstudio.com/Soil-Moisture-Temperature-Sensor-p-1356.html) with a environment shield is used to measure the temperature and humidity at the service of the soil. The SHT10 sensor, consumes approximately 3mW when taking measurements (source: https://www.adafruit.com/product/1298)
+A [SHT10 Temperature and Humidity sensor](https://www.seeedstudio.com/Soil-Moisture-Temperature-Sensor-p-1356.html) with a environment shield is used to measure the temperature and humidity at the surface of the soil. The SHT10 sensor, consumes approximately 3mW when taking measurements (source: https://www.adafruit.com/product/1298)
 
 
 
@@ -38,18 +38,13 @@ https://www.digikey.jp/ja/maker/projects/how-to-build-a-photon-mqtt-logger/876ce
 
 https://github.com/redbear/Duo
 
+## Software
 
+The Arduino IDE is required to be used to support the Redbear Duo board. I was not able to add the board definition to the PlatformIO my preferred Arduino development platform. Support the the Redbear Duo board is added using the Board Manger.
 
+The source code for the project is hosted at https://github.com/greenthegarden/RedbearDuoMqttMoisturePublisher.
 
-Sensors:
-
-## SOftware
-
-The Arduino IDE is required to be used to support the Redbear Duo board. I was not able to add the board definition to the PlatformIO my prefeered Arduino development platform. Support the the Redbear Duo board is added using the Board Manger.
-
-The source code for the projectsis hosted at 
-
-Requires a file containing configuration information named `secrets.h` with the following frormat
+Before compiling the code, add a file named `secrets.h` to the root project directory with the following format
 
 ```cpp
 //SSID (network name)
@@ -64,7 +59,7 @@ char CLIENTID[] = "duo_moisture";
 
 ## Libraries
 
-Uses modified versions of the following Libraries
+The project uses modified versions of the following libraries. Due to the modifications made the library source code has been added directly to this project. A script, `libraries/get_libraries.sh` had been provided to get updated copies of the libraries.
 
 ### HAMqttDevice
 
@@ -73,4 +68,6 @@ The [HAMqttDevice library](https://www.arduino.cc/reference/en/libraries/hamqttd
 ### MQTT
 
 THe [MQTT library](https://github.com/hirotakaster/MQTT) was found to be the most compatible MQTT library for the Redbear Duo.
+
+## MQTT Messages
 
