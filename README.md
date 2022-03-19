@@ -71,3 +71,148 @@ THe [MQTT library](https://github.com/hirotakaster/MQTT) was found to be the mos
 
 ## MQTT Messages
 
+Five Home Assistant devices are defined using
+
+```cpp
+HAMqttDevice soil_device_memory("Soil Device Memory", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_sht10_temperature("Soil SHT10 Temperature", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_sht10_humidity("Soil SHT10 Humidity", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_moisture_1("Soil Moisture 1", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+HAMqttDevice soil_moisture_2("Soil Moisture 2", HAMqttDevice::SENSOR, String(HA_MQTT_PREFIX));
+```
+
+### Device
+
+Config Topic: `homeassistant/sensor/soil_device_memory/config`
+
+Config Message structure:
+
+```json
+{
+  "~": "homeassistant/sensor/soil_device_memory",
+  "name": "Soil Device Memory",
+  "unique_id": "soil_device_memory",
+  "stat_t": "~/state",
+  "json_attr_t": "~/attr",
+  "stat_cla": "measurement",
+  "unit_of_meas": "bytes",
+  "dev": {
+    "ids": "duo_test",
+    "name": "Moisture Sensor",
+    "mdl": "Duo",
+    "sa": "garden",
+    "mf": "Redbear"
+  }
+}
+```
+
+Attribute Topic: `homeassistant/sensor/soil_device_memory/attr`
+
+Attribute Message structure: 
+
+```json
+{
+  "sample_interval": "60",
+  "ssid": "videoAtHome-2.4g",
+  "ip_address": "192.168.1.165",
+  "mac_address": "94:a1:a2:fd:71:f5",
+  "client_id": "duo_moisture_94a1a2fd71f5"
+}
+```
+
+State Topic: `homeassistant/sensor/soil_device_memory/state`
+
+State Message structure: int
+
+### Soil Temperature
+
+State Topic: `duo/sensor/soil_sht10`
+
+State Message structure: 
+
+```json
+{
+  "temperature": 24.75,
+  "humidity": 68.517
+}
+```
+
+### Soil Moisture Sensor 1
+
+Config Topic: `homeassistant/sensor/soil_moisture_1/config`
+
+Config Message structure:
+
+```json
+{
+  "~": "homeassistant/sensor/soil_moisture_1",
+  "name": "Soil Moisture 1",
+  "unique_id": "soil_moisture_1",
+  "stat_t": "~/state",
+  "stat_cla": "measurement",
+  "val_tpl": "{{ value_json.measurement | int(0) }}",
+  "dev": {
+    "ids": "moisture_sensor_1",
+    "name": "Capacitive Soil Moisture Sensor",
+    "mdl": "V1.2",
+    "sa": "garden",
+    "mf": "DIYMORE.CC"
+  },
+  "json_attr_t": "~/attr"
+}
+```
+
+Attribute Topic: `homeassistant/sensor/soil_moisture_1/attr`
+
+Attribute Message structure:
+
+
+```json
+{
+  "pin_data": "11",
+  "power_pin": "1"
+}
+```
+
+State Topic: `homeassistant/sensor/soil_moisture_1/state`
+
+State Message structure: int
+
+### Soil Moisture Sensor 2
+
+Config Topic: `homeassistant/sensor/soil_moisture_2/config`
+
+Config Message structure:
+
+```json
+{
+  "~": "homeassistant/sensor/soil_moisture_2",
+  "name": "Soil Moisture 2",
+  "unique_id": "soil_moisture_2",
+  "stat_t": "~/state",
+  "stat_cla": "measurement",
+  "val_tpl": "{{ value_json.measurement | int(0) }}",
+  "dev": {
+    "ids": "moisture_sensor_2",
+    "name": "Capacitive Soil Moisture Sensor",
+    "mdl": "V1.2",
+    "sa": "garden",
+    "mf": "DIYMORE.CC"
+  }
+}
+```
+
+Attribute Topic: `homeassistant/sensor/soil_moisture_2/attr`
+
+Attribute Message structure: 
+
+```json
+{
+  "pin_data": "13",
+  "power_pin": "2"
+}
+```
+
+State Topic: `homeassistant/sensor/soil_moisture_2/state`
+
+State Message structure: int
