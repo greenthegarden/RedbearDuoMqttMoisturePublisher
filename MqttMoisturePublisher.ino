@@ -117,7 +117,6 @@ MQTT client(BROKER_IP, BROKER_PORT, PAYLOAD_LENGTH, KEEP_ALIVE, callback);
  *************** Configure Home Assistant Integration ***************
  */
 
-// #include <HAMqttDevice.h>
 #include "HAMqttDevice.h"
 
 char HA_MQTT_PREFIX[] = "homeassistant";
@@ -159,6 +158,7 @@ void deviceConfig()
   soil_device_memory.enableAttributesTopic();
   soil_device_memory
       .addConfigVar("stat_cla", "measurement")
+      .addConfigVar("val_tpl", "{{ value | int(0) }}")
       .addConfigVar("unit_of_meas", "bytes")
       .addConfigVar("dev", "{\"ids\": \"duo_test\", \"name\": \"Moisture Sensor\", \"mdl\": \"Duo\", \"sa\": \"garden\", \"mf\": \"Redbear\"}");
   soil_device_memory
@@ -197,7 +197,7 @@ void moistureConfig() {
   soil_moisture_1.enableStateTopic();
   soil_moisture_1
       .addConfigVar("stat_cla", "measurement")
-      .addConfigVar("val_tpl", "{{ value_json.measurement | int(0) }}")
+      .addConfigVar("val_tpl", "{{ value | int(0) }}")
       .addConfigVar("dev", "{\"ids\": \"moisture_sensor_1\", \"name\": \"Capacitive Soil Moisture Sensor\", \"mdl\": \"V1.2\", \"sa\": \"garden\", \"mf\": \"DIYMORE.CC\"}");
   soil_moisture_1.enableAttributesTopic();
   soil_moisture_1
@@ -207,7 +207,7 @@ void moistureConfig() {
   soil_moisture_2.enableStateTopic();
   soil_moisture_2
       .addConfigVar("stat_cla", "measurement")
-      .addConfigVar("val_tpl", "{{ value_json.measurement | int(0) }}")
+      .addConfigVar("val_tpl", "{{ value | int(0) }}")
       .addConfigVar("dev", "{\"ids\": \"moisture_sensor_2\", \"name\": \"Capacitive Soil Moisture Sensor\", \"mdl\": \"V1.2\", \"sa\": \"garden\", \"mf\": \"DIYMORE.CC\"}");
   soil_moisture_2.enableAttributesTopic();
   soil_moisture_2

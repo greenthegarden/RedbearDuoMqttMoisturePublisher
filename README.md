@@ -30,7 +30,7 @@ Solar power and battery management is provided by a [Seeedstudio LiPo Rider Pro]
 
 ### Temperature and Humidity Sensor
 
-A [SHT10 Temperature and Humidity sensor](https://www.seeedstudio.com/Soil-Moisture-Temperature-Sensor-p-1356.html) with a environment shield is used to measure the temperature and humidity at the surface of the soil. The SHT10 sensor, consumes approximately 3mW when taking measurements (source: https://www.adafruit.com/product/1298)
+A [SHT10 Temperature and Humidity sensor](https://www.seeedstudio.com/Soil-Moisture-Temperature-Sensor-p-1356.html) with a environment shield is used to measure the temperature and humidity at the surface of the soil. The SHT10 sensor, consumes approximately 3mW when taking measurements (source: https://www.adafruit.com/product/1298). The [SHT1x-ESP](https://github.com/beegee-tokyo/SHT1x-ESP) library is used to get the measurements from the sensor.
 
 
 
@@ -125,6 +125,67 @@ State Topic: `homeassistant/sensor/soil_device_memory/state`
 State Message structure: int
 
 ### Soil Temperature
+
+Config Topic: `homeassistant/sensor/soil_sht10_temperature/config`
+
+Config Message structure:
+
+```json
+{
+  "~": "homeassistant/sensor/soil_sht10_temperature",
+  "name": "Soil SHT10 Temperature",
+  "unique_id": "soil_sht10_temperature",
+  "dev_cla": "temperature",
+  "stat_cla": "measurement",
+  "unit_of_meas": "°C",
+  "stat_t": "duo/sensor/soil_sht10",
+  "val_tpl": "{{ value_json.temperature | int(0) }}",
+  "dev":{
+    "ids": "temp_hum_sensor",
+    "name": "Moisture Sensor",
+    "mdl": "SHT10",
+    "sa": "garden",
+    "mf": "Seeed"
+  }
+}
+```
+
+State Topic: `duo/sensor/soil_sht10`
+
+State Message structure: 
+
+```json
+{
+  "temperature": 24.75,
+  "humidity": 68.517
+}
+```
+
+### Soil Humidity
+
+Config Topic: ` homeassistant/sensor/soil_sht10_humidity/config`
+
+Config Message structure:
+
+```json
+{
+  "~": "homeassistant/sensor/soil_sht10_humidity",
+  "name": "Soil SHT10 Humidity",
+  "unique_id": "soil_sht10_humidity",
+  "dev_cla": "humidity",
+  "stat_cla": "measurement",
+  "unit_of_meas": "%",
+  "stat_t": "duo/sensor/soil_sht10",
+  "val_tpl": "{{ value_json.humidity | int(0) }}",
+  "dev": {
+    "ids": "temp_hum_sensor",
+    "name": "Moisture Sensor",
+    "mdl": "SHT10",
+    "sa": "garden",
+    "mf": "Seeed"
+  }
+}
+```
 
 State Topic: `duo/sensor/soil_sht10`
 
