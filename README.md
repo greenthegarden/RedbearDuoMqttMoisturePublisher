@@ -1,12 +1,12 @@
 # MQTT Moisture Publisher
 
-Project to use a Redbear Duo microprossing board to gather and publish soil moisture, temperature and humidity via MQTT. The structure of the topics are compatible with Home Assistant MQTT Discovery.
+Project to use a [Redbear Duo](https://github.com/redbear/Duo) microprocessing board to gather and publish soil moisture, temperature and humidity via MQTT. The structure of the topics are compatible with [Home Assistant MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/).
 
 ## Hardware
 
 ### Redbear Duo
 
-The [Redbear Duo](https://github.com/redbear/Duo) was acquired via a [Kickstarter campaign](https://www.kickstarter.com/projects/redbearinc/redbear-duo-a-small-and-powerful-wi-fi-ble-iot-boa). The board is compatible with Particle boards.
+The [Redbear Duo](https://github.com/redbear/Duo) was acquired via a [Kickstarter campaign](https://www.kickstarter.com/projects/redbearinc/redbear-duo-a-small-and-powerful-wi-fi-ble-iot-boa). The board is compatible with Particle boards. Information about using MQTT with Particle Boards is provided at https://www.digikey.jp/ja/maker/projects/how-to-build-a-photon-mqtt-logger/876ce49a8f914f0799a0f8b94519acc1.
 
 LED Status Indicators
 
@@ -17,8 +17,6 @@ LED Status Indicators
 | pulsing green | 
 | solid green | listening mode |
 | solid yellow | |
-
-Device ID 3a001d000d47353033323637
 
 ### Battery Management
 
@@ -31,12 +29,6 @@ Solar power and battery management is provided by a [Seeedstudio LiPo Rider Pro]
 ### Temperature and Humidity Sensor
 
 A [SHT10 Temperature and Humidity sensor](https://www.seeedstudio.com/Soil-Moisture-Temperature-Sensor-p-1356.html) with a environment shield is used to measure the temperature and humidity at the surface of the soil. The SHT10 sensor, consumes approximately 3mW when taking measurements (source: https://www.adafruit.com/product/1298). The [SHT1x-ESP](https://github.com/beegee-tokyo/SHT1x-ESP) library is used to get the measurements from the sensor.
-
-
-
-https://www.digikey.jp/ja/maker/projects/how-to-build-a-photon-mqtt-logger/876ce49a8f914f0799a0f8b94519acc1
-
-https://github.com/redbear/Duo
 
 ## Software
 
@@ -55,6 +47,8 @@ char PASSWORD[] = "";
 char BROKER_IP[] = "";
 const uint16_t BROKER_PORT = 1883;
 char CLIENTID[] = "duo_moisture";
+// Device ID
+char DEVICE_ID[] = "3a001d000d47353033323637";
 ```
 
 ## Libraries
