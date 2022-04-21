@@ -157,7 +157,7 @@ State Message structure:
 
 ### Soil Humidity
 
-Config Topic: ` homeassistant/sensor/soil_sht10_humidity/config`
+Config Topic: `homeassistant/sensor/soil_sht10_humidity/config`
 
 Config Message structure:
 
@@ -183,7 +183,7 @@ Config Message structure:
 
 State Topic: `duo/sensor/soil_sht10`
 
-State Message structure: 
+State Message structure:
 
 ```json
 {
@@ -205,7 +205,7 @@ Config Message structure:
   "unique_id": "soil_moisture_1",
   "stat_t": "~/state",
   "stat_cla": "measurement",
-  "val_tpl": "{{ value_json.measurement | int(0) }}",
+  "val_tpl": "{{ value | int(0) }}",
   "dev": {
     "ids": "moisture_sensor_1",
     "name": "Capacitive Soil Moisture Sensor",
@@ -220,7 +220,6 @@ Config Message structure:
 Attribute Topic: `homeassistant/sensor/soil_moisture_1/attr`
 
 Attribute Message structure:
-
 
 ```json
 {
@@ -246,7 +245,7 @@ Config Message structure:
   "unique_id": "soil_moisture_2",
   "stat_t": "~/state",
   "stat_cla": "measurement",
-  "val_tpl": "{{ value_json.measurement | int(0) }}",
+  "val_tpl": "{{ value | int(0) }}",
   "dev": {
     "ids": "moisture_sensor_2",
     "name": "Capacitive Soil Moisture Sensor",
@@ -259,7 +258,7 @@ Config Message structure:
 
 Attribute Topic: `homeassistant/sensor/soil_moisture_2/attr`
 
-Attribute Message structure: 
+Attribute Message structure:
 
 ```json
 {
